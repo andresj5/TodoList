@@ -7,7 +7,7 @@ const listaTareas = document.getElementById("listaTareas");
 function guardarTareas() {
     const tareas = [];
     document.querySelectorAll(".tarea").forEach(item => {
-        const texto = item.textContent.replace(/"X$"/, "").trim();
+        const texto = item.textContent.replace(/X$/, "").trim();
         const fechaSpan = item.querySelector(".fecha");
         const fecha = fechaSpan ? fechaSpan.textContent.replace("Vence: ", "").replace(")","").trim() : null;
         
