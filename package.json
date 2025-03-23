@@ -1,0 +1,32 @@
+{
+  "name": "todolist-api",
+  "version": "1.0.0",
+  "description": "Proyecto clásico de una lista de tareas, en las que se puede agregar tareas, con una fecha de vencimiento, completarlas o eliminar las tareas.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andresj5/TodoList.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/andresj5/TodoList/issues"
+  },
+  "homepage": "https://github.com/andresj5/TodoList#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.12.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

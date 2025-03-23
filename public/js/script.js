@@ -1,18 +1,79 @@
-// Seleccionamos los elementos del DOM
-const tarea = document.getElementById("tarea");
-const nuevaTarea = document.getElementById("agregarTarea");
-const listaTareas = document.getElementById("listaTareas");
+// Selección de elementos del DOM
+const tarea = document.getElementById("tarea");           // Input de texto
+const fechaTarea = document.getElementById("fechaTarea"); // Input de fecha
+const nuevaTarea = document.getElementById("agregarTarea"); // Botón de agregar
+const listaTareas = document.getElementById("listaTareas"); // Lista donde se mostrarán las tareas
 
+// Función para agregar una tarea
+function agregarTarea(texto = null, completada = false, fecha = null) {
+    // Obtener el texto de la tarea
+    const textoTarea = texto || tarea.value.trim();
+    const fechaVencimiento = fecha || fechaTarea.value;
 
+    // Validar que la tarea no esté vacía
+    if (textoTarea === "") {
+        alert("Por favor escribe una tarea");
+        return;
+    }
+
+    // Crear el elemento de la tarea
+    const itemTarea = document.createElement("li");
+    itemTarea.classList.add("tarea");  // Agregar la clase "tarea" al elemento
+    
+    // Si la tarea está completada, agregar la clase
+    if (completada) {
+        itemTarea.classList.add("completada");
+    }
+
+    // Agregar la fecha si existe
+    let fechaTexto = fechaVencimiento ? `<span class="fecha">(Vence: ${fechaVencimiento})</span>` : "";
+    
+    // Agregar el contenido HTML (solo una vez)
+    itemTarea.innerHTML = `${textoTarea} ${fechaTexto} <button class="boton-borrar">X</button>`;
+
+    // Marcar como completada al hacer clic
+    itemTarea.addEventListener("click", function() {
+        itemTarea.classList.toggle("completada");
+        guardarTareas();
+    });
+
+    // Eliminar tarea
+    itemTarea.querySelector(".boton-borrar").addEventListener("click", function(e) {
+        e.stopPropagation(); // Evitar que se active el evento de completar
+        itemTarea.classList.add("eliminando");
+        setTimeout(() => {
+            itemTarea.remove();
+            guardarTareas();
+        }, 300); // Esperar 300ms para que se vea la animación
+    });
+
+    // Agregar la tarea a la lista
+    listaTareas.appendChild(itemTarea);
+    
+    // Limpiar los inputs
+    tarea.value = "";
+    fechaTarea.value = "";
+    
+    // Guardar en localStorage
+    guardarTareas();
+}
+
+//Función para guardar tareas en localStorage
 function guardarTareas() {
     const tareas = [];
     document.querySelectorAll(".tarea").forEach(item => {
-        const texto = item.textContent.replace(/X$/, "").trim();
+        // Obtener solo el texto de la tarea, excluyendo la fecha y el botón
+        const textoCompleto = item.textContent.replace(/X$/, "").trim();
         const fechaSpan = item.querySelector(".fecha");
-        const fecha = fechaSpan ? fechaSpan.textContent.replace("Vence: ", "").replace(")","").trim() : null;
+        const fecha = fechaSpan ? fechaSpan.textContent.replace(/[()]/g, "").replace("Vence: ", "").trim() : null;
         
+        // Obtener el texto sin la fecha
+        const texto = fechaSpan ? 
+            textoCompleto.replace(fechaSpan.textContent, "").trim() : 
+            textoCompleto;
+
         tareas.push({
-            texto : texto,
+            texto: texto,
             completada: item.classList.contains("completada"),
             fecha: fecha
         });
@@ -20,7 +81,7 @@ function guardarTareas() {
     localStorage.setItem("tareas", JSON.stringify(tareas));
 }
 
-// Función para cargar tareas desde localStorage
+//Función para cargar tareas desde localStorage
 function cargarTareas() {
     const tareasGuardadas = JSON.parse(localStorage.getItem("tareas")) || [];
     tareasGuardadas.forEach(tareaObj => {
@@ -28,61 +89,16 @@ function cargarTareas() {
     });
 }
 
-// Función para agregar una tarea
-function agregarTarea(texto, completada = false, fecha = null) {
-    const textoTarea = texto || tarea.value.trim(); // Usa el valor del input si no hay parámetro
-    const fechaVencimiento = fechaTarea.value;
-
-    const hoy = new Date().toISOString().split("T")[0];
-    if (fechaVencimiento && fechaVencimiento < hoy) { 
-        itemTarea.classList.add("vencida");
-    }
-
-    if (textoTarea === "") {
-        alert("Escribe una tarea antes de agregarla.");
-        return;
-    }
-
-    const itemTarea = document.createElement("li");
-    itemTarea.classList.add("tarea");
-    if (completada) itemTarea.classList.add("completada");
-    itemTarea.innerHTML = `${textoTarea}<button class="boton-borrar">X</button>`;
-
-    let fechaTexto = fechaVencimiento ? `<span class="fecha"> (Vence: ${fechaVencimiento})</span>` : "";
-
-    itemTarea.innerHTML = `${textoTarea} ${fechaTexto} <button class="boton-borrar">X</button>`;
-
-    // Marcar como completada
-    itemTarea.addEventListener("click", function () {
-        itemTarea.classList.toggle("completada");
-        guardarTareas(); // Actualizar almacenamiento local
-    });
-
-    // Botón para eliminar
-    itemTarea.querySelector(".boton-borrar").addEventListener("click", function () {
-        itemTarea.classList.add("eliminando");
-        setTimeout(() => {
-            itemTarea.remove();
-            guardarTareas(); // Actualizar almacenamiento local
-        }, 300);
-    });
-
-    listaTareas.appendChild(itemTarea);
-    guardarTareas(); // Guardar en localStorage
-
-    tarea.value = ""; 
-    fechaTarea.value = "";
-}
-
-// Evento para agregar tarea al hacer clic en el botón
+//Eventos principales
+//Agregar tarea al hacer clic en el botón
 nuevaTarea.addEventListener("click", () => agregarTarea());
 
-// Evento para agregar tarea al presionar Enter
-tarea.addEventListener("keypress", function (event) {
+//Agregar tarea al presionar Enter
+tarea.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         agregarTarea();
     }
 });
 
-// Cargar tareas almacenadas al iniciar
+//Cargar tareas al iniciar la página
 cargarTareas();
